@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mkdir build
+avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/pins.o -Wall pins.c
+avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/main.o -Wall main.c
+avr-gcc -mmcu=atmega328p build/main.o build/pins.o -o build/main
+avr-objcopy -O ihex -R .eeprom build/main build/main.hex
+avrdude -F -V -c arduino -p ATMEGA328P -P $1 -b 57600 -U flash:w:build/main.hex
+rm -r build
