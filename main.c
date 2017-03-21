@@ -3,31 +3,31 @@
 #include "serial.h"
 #include "pins.h"
 
+void prepare();
 void loop();
 
 int main(){
-	/*digitalPinMode(6, INPUT);
-	digitalPinMode(7, INPUT);
-	digitalPinMode(12, OUTPUT);*/
-
-	serial_init(9600);
+	prepare();
 
 	while(1){
 		loop();
 	}
 }
 
+void prepare(){
+	serial_init(9600);
+	digitalPinMode(5, OUTPUT);
+	digitalPinMode(11, OUTPUT);
+}
+
 void loop(){
-	/*if(DDRB&0x10){
-		digitalWrite(12, HIGH);
-	}
-	else{
-		digitalWrite(12, LOW);
-	}*/
+	digitalWrite(5, HIGH);
+	digitalWrite(11, HIGH);
 
-	char buffer[5];
-	serial_read(buffer, 5);
-	serial_write(buffer, 5);
+	_delay_ms(1000);
 
-	_delay_ms(100);
+	digitalWrite(5, LOW);
+	digitalWrite(11, LOW);
+
+	_delay_ms(1000);
 }
