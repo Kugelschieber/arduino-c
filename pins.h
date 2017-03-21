@@ -6,13 +6,13 @@ extern const unsigned char HIGH;
 extern const unsigned char INPUT;
 extern const unsigned char OUTPUT;
 
-// rename underscore
-void digitalPinMode(unsigned char, unsigned char);
-int digitalRead(unsigned char);
-void digitalWrite(unsigned char, unsigned char);
+// rename underscore, unify digital and analog
+void digital_pin_mode(unsigned char, unsigned char);
+int digital_read(unsigned char);
+void digital_write(unsigned char, unsigned char);
 
-void analogPinMode(unsigned char, unsigned char);
-int analogRead(unsigned char);
-void analogWrite(unsigned char, unsigned char);
+void analog_pin_mode(unsigned char, unsigned char);
+int analog_read(unsigned char);
+void analog_write(unsigned char, unsigned char);
 
 #endif

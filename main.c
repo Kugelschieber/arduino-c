@@ -16,18 +16,18 @@ int main(){
 
 void prepare(){
 	serial_init(9600);
-	digitalPinMode(5, OUTPUT);
-	digitalPinMode(11, OUTPUT);
+	digital_pin_mode(5, OUTPUT);
+	digital_pin_mode(11, OUTPUT);
 }
 
 void loop(){
-	digitalWrite(5, HIGH);
-	digitalWrite(11, HIGH);
+	digital_write(5, HIGH);
+	digital_write(11, HIGH);
 
 	_delay_ms(1000);
 
-	digitalWrite(5, LOW);
-	digitalWrite(11, LOW);
+	digital_write(5, LOW);
+	digital_write(11, LOW);
 
 	_delay_ms(1000);
 }

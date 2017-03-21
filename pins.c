@@ -6,7 +6,7 @@ const unsigned char HIGH = 0x01;
 const unsigned char INPUT = 0x00;
 const unsigned char OUTPUT = 0x01;
 
-void digitalPinMode(unsigned char pin, unsigned char mode){
+void digital_pin_mode(unsigned char pin, unsigned char mode){
 	if(pin > 13){
 		return;
 	}
@@ -31,7 +31,7 @@ void digitalPinMode(unsigned char pin, unsigned char mode){
 	}
 }
 
-int digitalRead(unsigned char pin){
+int digital_read(unsigned char pin){
 	if(pin > 13){
 		return 0;
 	}
@@ -48,7 +48,7 @@ int digitalRead(unsigned char pin){
 	return PINB&_BV(DDB0+pin);
 }
 
-void digitalWrite(unsigned char pin, unsigned char value){
+void digital_write(unsigned char pin, unsigned char value){
 	if(pin > 13){
 		return;
 	}
@@ -80,7 +80,7 @@ void digitalWrite(unsigned char pin, unsigned char value){
 	}
 }
 
-void analogPinMode(unsigned char pin, unsigned char mode){
+void analog_pin_mode(unsigned char pin, unsigned char mode){
 	if(pin > 7){
 		return;
 	}
@@ -93,7 +93,7 @@ void analogPinMode(unsigned char pin, unsigned char mode){
 	}
 }
 
-int analogRead(unsigned char pin){
+int analog_read(unsigned char pin){
 	if(pin > 7){
 		return 0;
 	}
@@ -101,7 +101,7 @@ int analogRead(unsigned char pin){
 	return PINC&_BV(DDC0+pin);
 }
 
-void analogWrite(unsigned char pin, unsigned char value){
+void analog_write(unsigned char pin, unsigned char value){
 	if(pin > 7){
 		return;
 	}
