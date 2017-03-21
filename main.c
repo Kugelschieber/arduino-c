@@ -16,18 +16,26 @@ int main(){
 
 void prepare(){
 	serial_init(9600);
-	digital_pin_mode(5, OUTPUT);
-	digital_pin_mode(11, OUTPUT);
+	/*pin_mode(11, OUTPUT);
+	pin_mode(10, INPUT);
+	pin_mode(8, INPUT);*/
+	pin_mode(A4, INPUT);
 }
 
 void loop(){
-	digital_write(5, HIGH);
-	digital_write(11, HIGH);
+	/*if(digital_read(10) && digital_read(8)){
+		digital_write(11, HIGH);
+	}
+	else{
+		digital_write(11, LOW);
+	}*/
 
-	_delay_ms(1000);
-
-	digital_write(5, LOW);
-	digital_write(11, LOW);
-
-	_delay_ms(1000);
+	if(analog_read(A4) > 0){
+		serial_write("ok", 3);
+	}
+	else{
+		serial_write("nope", 5);
+	}
+	
+	_delay_ms(25);
 }
