@@ -1,5 +1,6 @@
 #include "pins.h"
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 const unsigned char LOW = 0x00;
 const unsigned char HIGH = 0x01;
@@ -16,6 +17,9 @@ const unsigned char A5 = 0x13;
 const unsigned char A6 = 0x14;
 const unsigned char A7 = 0x15;
 
+double dutyCycle = 0; // TODO more than one???
+
+void analog_read_duty_cycle();
 unsigned char map_analog_pin(unsigned char);
 
 void pin_mode(unsigned char pin, unsigned char mode){
@@ -61,8 +65,6 @@ int digital_read(unsigned char pin){
 		return 0;
 	}
 
-	// TODO turn off pwm
-
 	if(pin < 8){
 		// pin 0-7
 		return PIND&_BV(pin) ? 1 : 0;
@@ -77,8 +79,6 @@ void digital_write(unsigned char pin, unsigned char value){
 	if(pin > 13){
 		return;
 	}
-
-	// TODO turn off pwm
 
 	if(pin < 8){
 		// pin 0-7
@@ -102,30 +102,34 @@ void digital_write(unsigned char pin, unsigned char value){
 	}
 }
 
-int analog_read(unsigned char pin){
+unsigned int analog_read(unsigned char pin){
 	pin = map_analog_pin(pin);
 
 	if(pin > 7){
 		return 0;
 	}
 
-	// TODO use ADC
-
-	ADMUX = 0xf0|pin;
-	ADCSRA |= _BV(pin);
-	while(ADCSRA&_BV(pin));
+	// enable ADC (128 bit ADPS scaling factor 0x07),
+	// disable digital input buffer (DIDR0)
+	ADCSRA = _BV(ADEN)|_BV(ADIE)|0x07;
+	ADMUX = _BV(REFS0)|pin;
+	DIDR0 |= _BV(pin);
+//	while(!(ADCSRA&_BV(ADIF)));
+	analog_read_duty_cycle();
 
 	return ADC;
 }
 
-void analog_write(unsigned char pin, int value){
+void analog_read_duty_cycle(){
+	ADCSRA |= _BV(ADSC);
+}
+
+void analog_write(unsigned char pin, unsigned int value){
 	pin = map_analog_pin(pin);
 
 	if(pin > 7){
 		return;
 	}
-
-	// TODO turn off pwm
 
 	if(value == HIGH){
 		PORTC |= _BV(pin);
@@ -142,4 +146,9 @@ unsigned char map_analog_pin(unsigned char pin){
 	}
 
 	return pin;
+}
+
+ISR(ADC_vect){
+	dutyCycle = ADC;
+	analog_read_duty_cycle();
 }

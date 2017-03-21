@@ -18,7 +18,7 @@ extern const unsigned char A7;
 void pin_mode(unsigned char, unsigned char);
 int digital_read(unsigned char);
 void digital_write(unsigned char, unsigned char);
-int analog_read(unsigned char);
-void analog_write(unsigned char, int);
+unsigned int analog_read(unsigned char);
+void analog_write(unsigned char, unsigned int);
 
 #endif
