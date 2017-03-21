@@ -6,6 +6,7 @@ extern const unsigned char HIGH;
 extern const unsigned char INPUT;
 extern const unsigned char OUTPUT;
 
+// rename underscore
 void digitalPinMode(unsigned char, unsigned char);
 int digitalRead(unsigned char);
 void digitalWrite(unsigned char, unsigned char);
