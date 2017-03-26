@@ -17,8 +17,6 @@ const unsigned char A5 = 0x13;
 const unsigned char A6 = 0x14;
 const unsigned char A7 = 0x15;
 
-double dutyCycle = 0; // TODO more than one???
-
 void analog_read_duty_cycle();
 unsigned char map_analog_pin(unsigned char);
 
@@ -114,14 +112,13 @@ unsigned int analog_read(unsigned char pin){
 	ADCSRA = _BV(ADEN)|_BV(ADIE)|0x07;
 	ADMUX = _BV(REFS0)|pin;
 	DIDR0 |= _BV(pin);
-//	while(!(ADCSRA&_BV(ADIF)));
-	analog_read_duty_cycle();
+	ADCSRA |= _BV(ADSC); // start
 
+	// wait for it to finish
+	while(ADCSRA&_BV(ADSC));
+
+	// return 10 bit value
 	return ADC;
-}
-
-void analog_read_duty_cycle(){
-	ADCSRA |= _BV(ADSC);
 }
 
 void analog_write(unsigned char pin, unsigned int value){
@@ -148,7 +145,7 @@ unsigned char map_analog_pin(unsigned char pin){
 	return pin;
 }
 
+// analog to digital converter interrupt handler
 ISR(ADC_vect){
-	dutyCycle = ADC;
-	analog_read_duty_cycle();
+	// required but not used...
 }

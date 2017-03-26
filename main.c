@@ -27,7 +27,8 @@ void prepare(){
 	pin_mode(8, INPUT);*/
 
 	// anlog input example
-	pin_mode(A4, INPUT);
+	pin_mode(A1, INPUT);
+	pin_mode(A2, INPUT);
 }
 
 void loop(){
@@ -40,9 +41,10 @@ void loop(){
 	}*/
 
 	// anlog input example
-	int analog = analog_read(A4);
+	int analog1 = analog_read(A1);
+	int analog2 = analog_read(A2);
 	char out[15];
-	sprintf(out, "%d", analog);
+	sprintf(out, "%d %d", analog1, analog2);
 	serial_write(out, 15);
 
 	_delay_ms(25);
