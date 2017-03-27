@@ -34,7 +34,7 @@ void pin_mode(unsigned char pin, unsigned char mode){
 			DDRD |= _BV(pin);
 		}
 	}
-	else if(pin < 14){
+	else if(pin < A0){
 		// digital pin 8-13
 		pin -= 8;
 
@@ -47,7 +47,7 @@ void pin_mode(unsigned char pin, unsigned char mode){
 	}
 	else{
 		// analog pin 0-7
-		pin -= 14;
+		pin -= A0;
 
 		if(mode == INPUT){
 			DDRC &= ~_BV(pin);
@@ -59,27 +59,31 @@ void pin_mode(unsigned char pin, unsigned char mode){
 }
 
 int digital_read(unsigned char pin){
-	if(pin > 13){
+	if(pin > A7){
 		return 0;
 	}
 
 	if(pin < 8){
-		// pin 0-7
+		// digital pin 0-7
 		return PIND&_BV(pin) ? 1 : 0;
 	}
+	else if(pin < A0){
+		// digital pin 8-13
+		pin -= 8;
+		return PINB&_BV(pin) ? 1 : 0;
+	}
 
-	// pin 8-13
-	pin -= 8;
-	return PINB&_BV(pin) ? 1 : 0;
+	// analog pin 0-7
+	return analog_read(pin) > 512 ? 1 : 0;
 }
 
 void digital_write(unsigned char pin, unsigned char value){
-	if(pin > 13){
+	if(pin > A7){
 		return;
 	}
 
 	if(pin < 8){
-		// pin 0-7
+		// digital pin 0-7
 		if(value == HIGH){
 			PORTD |= _BV(pin);
 		}
@@ -87,8 +91,8 @@ void digital_write(unsigned char pin, unsigned char value){
 			PORTD &= ~_BV(pin);
 		}
 	}
-	else{
-		// pin 8-13
+	else if(pin < A0){
+		// digital pin 8-13
 		pin -= 8;
 
 		if(value == HIGH){
@@ -96,6 +100,17 @@ void digital_write(unsigned char pin, unsigned char value){
 		}
 		else{
 			PORTB &= ~_BV(pin);
+		}
+	}
+	else{
+		// analog pin 0-7
+		pin -= A0;
+
+		if(value == HIGH){
+			PORTC |= _BV(pin);
+		}
+		else{
+			PORTC &= ~_BV(pin);
 		}
 	}
 }
@@ -121,19 +136,22 @@ unsigned int analog_read(unsigned char pin){
 	return ADC;
 }
 
+// TODO: write PWM to digital pins which allow it
 void analog_write(unsigned char pin, unsigned int value){
-	pin = map_analog_pin(pin);
-
-	if(pin > 7){
+	if(pin > 11){
 		return;
 	}
 
-	if(value == HIGH){
+	if(value > 255){
+		value = 255;
+	}
+
+	/*if(value == HIGH){
 		PORTC |= _BV(pin);
 	}
 	else{
 		PORTC &= ~_BV(pin);
-	}
+	}*/
 }
 
 // maps A0-A7 to 0-7

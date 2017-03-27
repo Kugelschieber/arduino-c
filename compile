@@ -1,6 +1,7 @@
 #!/bin/bash
 
 mkdir build
+avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/util.o -Wall ard/util.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/serial.o -Wall ard/serial.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/pins.o -Wall ard/pins.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/main.o -Wall main.c

@@ -1,5 +1,5 @@
-#ifndef PINS_H_
-#define PINS_H_
+#ifndef ARD_PINS_H_
+#define ARD_PINS_H_
 
 extern const unsigned char LOW;
 extern const unsigned char HIGH;

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "ard/serial.h"
 #include "ard/pins.h"
+#include "ard/util.h"
 
 void prepare();
 void loop();
@@ -31,6 +32,7 @@ void prepare(){
 	pin_mode(A2, INPUT);*/
 
 	// PWM example
+	pin_mode(A1, INPUT);
 	pin_mode(3, OUTPUT);
 }
 
@@ -51,7 +53,12 @@ void loop(){
 	serial_write(out, 15);*/
 
 	// PWM example
-	digital_write(3, HIGH);
+	int analog = map(analog_read(A1), 0, 1023, 0, 255);
+	analog_write(3, analog);
+
+	char out[15];
+	sprintf(out, "%d", analog);
+	serial_write(out, 15);
 
 	_delay_ms(25);
 }
