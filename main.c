@@ -2,8 +2,8 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <stdio.h>
-#include "serial.h"
-#include "pins.h"
+#include "ard/serial.h"
+#include "ard/pins.h"
 
 void prepare();
 void loop();
@@ -27,8 +27,11 @@ void prepare(){
 	pin_mode(8, INPUT);*/
 
 	// anlog input example
-	pin_mode(A1, INPUT);
-	pin_mode(A2, INPUT);
+	/*pin_mode(A1, INPUT);
+	pin_mode(A2, INPUT);*/
+
+	// PWM example
+	pin_mode(3, OUTPUT);
 }
 
 void loop(){
@@ -41,11 +44,14 @@ void loop(){
 	}*/
 
 	// anlog input example
-	int analog1 = analog_read(A1);
+	/*int analog1 = analog_read(A1);
 	int analog2 = analog_read(A2);
 	char out[15];
 	sprintf(out, "%d %d", analog1, analog2);
-	serial_write(out, 15);
+	serial_write(out, 15);*/
+
+	// PWM example
+	digital_write(3, HIGH);
 
 	_delay_ms(25);
 }
