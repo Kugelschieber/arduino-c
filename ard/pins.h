@@ -19,6 +19,6 @@ void pin_mode(unsigned char, unsigned char);
 int digital_read(unsigned char);
 void digital_write(unsigned char, unsigned char);
 unsigned int analog_read(unsigned char);
-void analog_write(unsigned char, unsigned int);
+void analog_write(unsigned char, unsigned char);
 
 #endif

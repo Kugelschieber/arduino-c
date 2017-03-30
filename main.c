@@ -33,8 +33,10 @@ void prepare(){
 
 	// PWM example
 	pin_mode(A1, INPUT);
-	pin_mode(3, OUTPUT);
+	pin_mode(6, OUTPUT);
 }
+
+unsigned char pwm = 0;
 
 void loop(){
 	// digital input/output example
@@ -54,7 +56,7 @@ void loop(){
 
 	// PWM example
 	int analog = map(analog_read(A1), 0, 1023, 0, 255);
-	analog_write(3, analog);
+	analog_write(6, analog);
 
 	char out[15];
 	sprintf(out, "%d", analog);

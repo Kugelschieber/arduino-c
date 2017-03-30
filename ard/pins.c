@@ -137,21 +137,22 @@ unsigned int analog_read(unsigned char pin){
 }
 
 // TODO: write PWM to digital pins which allow it
-void analog_write(unsigned char pin, unsigned int value){
-	if(pin > 11){
+void analog_write(unsigned char pin, unsigned char value){
+	if(pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin != 10 && pin != 11){
 		return;
 	}
 
-	if(value > 255){
-		value = 255;
-	}
+	// TODO maybe set pin mode?
 
-	/*if(value == HIGH){
-		PORTC |= _BV(pin);
-	}
-	else{
-		PORTC &= ~_BV(pin);
-	}*/
+	// clear timer on compare match
+	TCCR0A |= _BV(COM0A1)|_BV(WGM01)|_BV(WGM00);
+
+	// set interrupt on overflow and value to compare to
+	TIMSK0 |= _BV(TOIE0);
+	OCR0A = value;
+
+	// set timer scaling to 1, which starts the timer
+	TCCR0B |= _BV(CS00)|_BV(CS02);
 }
 
 // maps A0-A7 to 0-7
@@ -166,4 +167,9 @@ unsigned char map_analog_pin(unsigned char pin){
 // analog to digital converter interrupt handler
 ISR(ADC_vect){
 	// required but not used...
+}
+
+// fast PWM overflow interrupt handler
+ISR(TIMER0_OVF_vect){
+
 }
