@@ -136,13 +136,13 @@ unsigned int analog_read(unsigned char pin){
 	return ADC;
 }
 
-// TODO: write PWM to digital pins which allow it
+// TODO support more than pin 6!
 void analog_write(unsigned char pin, unsigned char value){
 	if(pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin != 10 && pin != 11){
 		return;
 	}
 
-	// TODO maybe set pin mode?
+	pin_mode(pin, OUTPUT);
 
 	// clear timer on compare match
 	TCCR0A |= _BV(COM0A1)|_BV(WGM01)|_BV(WGM00);
@@ -171,5 +171,5 @@ ISR(ADC_vect){
 
 // fast PWM overflow interrupt handler
 ISR(TIMER0_OVF_vect){
-
+	// required but not used...
 }
