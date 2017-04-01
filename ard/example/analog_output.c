@@ -24,8 +24,6 @@ void prepare(){
 	pin_mode(11, OUTPUT);
 }
 
-unsigned char pwm = 0;
-
 void loop(){
 	int analog = map(analog_read(A1), 0, 1023, 0, 255);
 	analog_write(11, analog);
