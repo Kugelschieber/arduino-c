@@ -20,6 +20,21 @@ const unsigned char A7 = 0x15;
 void analog_read_duty_cycle();
 unsigned char map_analog_pin(unsigned char);
 
+void pins_init(){
+	sei();
+
+	// enable ADC (128 bit ADPS scaling factor 0x07) to read analog values
+	ADCSRA = _BV(ADEN)|_BV(ADIE)|0x07;
+
+	// clear timer to compare match for PWM output
+	TCCR0A |= _BV(WGM01)|_BV(WGM00);
+	TCCR1A |= _BV(WGM01)|_BV(WGM00);
+	TCCR2A |= _BV(WGM21)|_BV(WGM20);
+
+	// enable interrupt on timer overflow for PWM output
+	TIMSK0 |= _BV(TOIE0);
+}
+
 void pin_mode(unsigned char pin, unsigned char mode){
 	if(pin > A7){
 		return;
@@ -122,12 +137,10 @@ unsigned int analog_read(unsigned char pin){
 		return 0;
 	}
 
-	// enable ADC (128 bit ADPS scaling factor 0x07),
 	// disable digital input buffer (DIDR0)
-	ADCSRA = _BV(ADEN)|_BV(ADIE)|0x07;
 	ADMUX = _BV(REFS0)|pin;
 	DIDR0 |= _BV(pin);
-	ADCSRA |= _BV(ADSC); // start
+	ADCSRA |= _BV(ADSC); // start conversion
 
 	// wait for it to finish
 	while(ADCSRA&_BV(ADSC));
@@ -136,23 +149,54 @@ unsigned int analog_read(unsigned char pin){
 	return ADC;
 }
 
-// TODO support more than pin 6!
 void analog_write(unsigned char pin, unsigned char value){
+	// write digital if possible
+	if(value == 0){
+		digital_write(pin, LOW);
+		return;
+	}
+	else if(value == 255){
+		digital_write(pin, HIGH);
+		return;
+	}
+
 	if(pin != 3 && pin != 5 && pin != 6 && pin != 9 && pin != 10 && pin != 11){
 		return;
 	}
 
-	pin_mode(pin, OUTPUT);
-
-	// clear timer on compare match
-	TCCR0A |= _BV(COM0A1)|_BV(WGM01)|_BV(WGM00);
-
-	// set interrupt on overflow and value to compare to
-	TIMSK0 |= _BV(TOIE0);
-	OCR0A = value;
-
-	// set timer scaling to 1, which starts the timer
-	TCCR0B |= _BV(CS00)|_BV(CS02);
+	// 1. clear timer on compare match (pins_init)
+	// 2. set interrupt on overflow (pins_init) and value to compare to
+	// 3. set timer scaling to 1, which starts the timer
+	if(pin == 3){
+		TCCR2A |= _BV(COM2B1);
+		OCR2B = value;
+		TCCR2B |= _BV(CS20)|_BV(CS21);
+	}
+	else if(pin == 5){
+		TCCR0A |= _BV(COM0B1);
+		OCR0B = value;
+		TCCR0B |= _BV(CS00)|_BV(CS02);
+	}
+	else if(pin == 6){
+		TCCR0A |= _BV(COM0A1);
+		OCR0A = value;
+		TCCR0B |= _BV(CS00)|_BV(CS02);
+	}
+	else if(pin == 9){
+		TCCR1A |= _BV(COM1A1);
+		OCR1A = value;
+		TCCR1B |= _BV(CS10)|_BV(CS11);
+	}
+	else if(pin == 10){
+		TCCR1A |= _BV(COM1B1);
+		OCR1B = value;
+		TCCR1B |= _BV(CS10)|_BV(CS11);
+	}
+	else if(pin == 11){
+		TCCR2A |= _BV(COM2A1);
+		OCR2A = value;
+		TCCR2B |= _BV(CS20)|_BV(CS21);
+	}
 }
 
 // maps A0-A7 to 0-7
@@ -165,11 +209,5 @@ unsigned char map_analog_pin(unsigned char pin){
 }
 
 // analog to digital converter interrupt handler
-ISR(ADC_vect){
-	// required but not used...
-}
-
-// fast PWM overflow interrupt handler
-ISR(TIMER0_OVF_vect){
-	// required but not used...
-}
+// required, but does not need to do anything
+ISR(ADC_vect){}

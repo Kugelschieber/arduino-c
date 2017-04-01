@@ -1,6 +1,4 @@
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <util/delay.h>
+//#include <util/delay.h>
 #include <stdio.h>
 #include "ard/serial.h"
 #include "ard/pins.h"
@@ -19,7 +17,7 @@ int main(){
 
 void prepare(){
 	// enable global interrupts and serial port
-	sei();
+	pins_init();
 	serial_init(9600);
 
 	// digital input/output example
@@ -33,6 +31,8 @@ void prepare(){
 
 	// PWM example
 	pin_mode(A1, INPUT);
+	pin_mode(6, OUTPUT);
+	pin_mode(11, OUTPUT);
 }
 
 unsigned char pwm = 0;
@@ -49,18 +49,25 @@ void loop(){
 	// anlog input example
 	/*int analog1 = analog_read(A1);
 	int analog2 = analog_read(A2);
+	
 	char out[15];
 	sprintf(out, "%d %d", analog1, analog2);
 	serial_write(out, 15);*/
 
 	// PWM example
 	int analog = map(analog_read(A1), 0, 1023, 0, 255);
-	analog_write(3, analog);
-	analog_write(6, analog);
+	analog_write(11, analog);
+
+	if(analog < 128){
+		digital_write(6, HIGH);
+	}
+	else{
+		digital_write(6, LOW);
+	}
 
 	char out[15];
 	sprintf(out, "%d", analog);
 	serial_write(out, 15);
 
-	_delay_ms(25);
+	//_delay_ms(25);
 }

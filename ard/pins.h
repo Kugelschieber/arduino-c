@@ -15,6 +15,7 @@ extern const unsigned char A5;
 extern const unsigned char A6;
 extern const unsigned char A7;
 
+void pins_init();
 void pin_mode(unsigned char, unsigned char);
 int digital_read(unsigned char);
 void digital_write(unsigned char, unsigned char);
