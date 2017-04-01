@@ -1,3 +1,4 @@
+#include <util/delay.h>
 #include <stdio.h>
 #include "ard/serial.h"
 #include "ard/pins.h"
@@ -19,25 +20,20 @@ void prepare(){
 	pins_init();
 	serial_init(9600);
 
-	pin_mode(A1, INPUT);
-	pin_mode(6, OUTPUT);
 	pin_mode(11, OUTPUT);
+	pin_mode(10, INPUT);
+	pin_mode(8, INPUT);
 }
 
 unsigned char pwm = 0;
 
 void loop(){
-	int analog = map(analog_read(A1), 0, 1023, 0, 255);
-	analog_write(11, analog);
-
-	if(analog < 128){
-		digital_write(6, HIGH);
+	if(digital_read(10) && digital_read(8)){
+		digital_write(11, HIGH);
 	}
 	else{
-		digital_write(6, LOW);
+		digital_write(11, LOW);
 	}
 
-	char out[15];
-	sprintf(out, "%d", analog);
-	serial_write(out, 15);
+	_delay_ms(25);
 }
