@@ -1,7 +1,9 @@
+#include <util/delay.h>
 #include <stdio.h>
 #include "ard/serial.h"
 #include "ard/pins.h"
 #include "ard/util.h"
+#include "rf24/rf24.h"
 
 void prepare();
 void loop();
@@ -15,27 +17,16 @@ int main(){
 }
 
 void prepare(){
-	// enable global interrupts and serial port
 	pins_init();
 	serial_init(9600);
-
-	pin_mode(A1, INPUT);
-	pin_mode(6, OUTPUT);
-	pin_mode(11, OUTPUT);
+	pin_mode(2, OUTPUT);
+	digital_write(2, LOW);
+	rf24_init(32, 2, 8, 7, 6, 5, 4);
+	digital_write(2, HIGH);
 }
 
 void loop(){
-	int analog = map(analog_read(A1), 0, 1023, 0, 255);
-	analog_write(11, analog);
+	
 
-	if(analog < 128){
-		digital_write(6, HIGH);
-	}
-	else{
-		digital_write(6, LOW);
-	}
-
-	char out[15];
-	sprintf(out, "%d", analog);
-	serial_write(out, 15);
+	_delay_ms(1000);
 }
