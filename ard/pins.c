@@ -8,8 +8,8 @@ const unsigned char INPUT = 0x00;
 const unsigned char OUTPUT = 0x01;
 
 // analog pins (digital range from 0 to 13)
-const unsigned char A0 = 0x0e;
-const unsigned char A1 = 0x0f;
+const unsigned char A0 = 0x0E;
+const unsigned char A1 = 0x0F;
 const unsigned char A2 = 0x10;
 const unsigned char A3 = 0x11;
 const unsigned char A4 = 0x12;
