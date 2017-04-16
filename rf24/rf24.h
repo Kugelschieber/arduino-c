@@ -6,6 +6,10 @@ void rf24_config(unsigned char, unsigned char);
 void rf24_rx_addr(unsigned char*);
 void rf24_tx_addr(unsigned char*);
 
+void rf24_rx();
+void rf24_tx();
+void rf24_power_down();
+
 void rf24_send(unsigned char*);
 unsigned char rf24_is_sending();
 

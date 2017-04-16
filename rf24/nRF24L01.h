@@ -42,7 +42,7 @@
 #define RF_DR_LOW       5
 #define PLL_LOCK        4
 #define RF_DR_HIGH      3
-#define RF_PWR          0 // 2 bits
+#define RF_PWR          1 // 2 bits
 
 #define STATUS          0x07
 #define RX_DR           6
