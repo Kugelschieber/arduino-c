@@ -5,14 +5,13 @@
 // FIXME for testing, remove later
 #include <util/delay.h>
 
-const unsigned char RF24_POWER_DOWN = 1;
-const unsigned char RF24_STANDBY_1 = 2;
-const unsigned char RF24_STANDBY_2 = 3;
-const unsigned char RF24_TX = 4;
-const unsigned char RF24_RX = 5;
+#define CONFIG_CRC (1<<EN_CRC)|(1<<CRCO)
 
 unsigned char _ce, _csn, _sck, _mo, _mi, _irq, _payload_len;
 
+void rf24_rx();
+void rf24_tx();
+unsigned char rf24_fifo_empty();
 void rf24_serial_transmit(unsigned char*, unsigned char);
 unsigned char rf24_serial_write(unsigned char);
 
@@ -32,8 +31,6 @@ void rf24_init(unsigned char ce, unsigned char csn, unsigned char sck, unsigned 
 	_mo = mo;
 	_mi = mi;
 	_irq = irq;
-
-	//rf24_mode(RF24_POWER_DOWN);
 }
 
 // channel in 1Mhz steps
@@ -53,7 +50,7 @@ void rf24_config(unsigned char channel, unsigned char payload_len){
 	rf24_config_register(RF_SETUP, (1<<RF_DR_LOW)|(0x03<<RF_PWR));
 
 	// CRC
-	rf24_config_register(CONFIG, (1<<EN_CRC)|(1<<CRCO));
+	rf24_config_register(CONFIG, CONFIG_CRC);
 
 	// auto ACK for pipe 0 and 1
 	//rf24_config_register(EN_AA, 0x03);
@@ -63,6 +60,8 @@ void rf24_config(unsigned char channel, unsigned char payload_len){
 
 	// auto retransmit, 1000us, 15 retransmits
 	rf24_config_register(SETUP_RETR, (0x03<<ARD)|(0x0F<<ARC));
+
+	rf24_rx();
 }
 
 void rf24_rx_addr(unsigned char* addr){
@@ -77,30 +76,47 @@ void rf24_tx_addr(unsigned char* addr){
 	rf24_serial_transmit(addr, 5);
 }
 
-/*void rf24_mode(unsigned char mode){
-	switch(mode){
-		case 1: // RF24_POWER_DOWN
-			digital_write(_ce, LOW);
-			rf24_config_register(CONFIG, 0x00);
-			break;
-		case 2: // RF24_STANDBY_1
-			digital_write(_ce, LOW);
-			rf24_config_register(CONFIG, 1<<PWR_UP);
-			break;
-		case 3: // RF24_STANDBY_2
-			digital_write(_ce, HIGH);
-			rf24_config_register(CONFIG, 1<<PWR_UP);
-			break;
-		case 4: // RF24_TX
-			digital_write(_ce, HIGH);
-			rf24_config_register(CONFIG, 1<<PWR_UP);
-			break;
-		case 5: // RF24_RX
-			digital_write(_ce, HIGH);
-			rf24_config_register(CONFIG, (1<<PWR_UP)|(1<<PRIM_RX));
-			break;
+void rf24_send(unsigned char* data){
+	rf24_tx();
+	rf24_serial_write(W_TX_PAYLOAD);
+	rf24_serial_transmit(data, _payload_len);
+	digital_write(_ce, HIGH);
+}
+
+unsigned char rf24_is_sending(){
+	unsigned char status = rf24_status();
+
+	if(status&((1<<TX_DS)|(1<<MAX_RT))){
+		return 0;
 	}
-}*/
+
+	return 1;
+}
+
+unsigned char rf24_data_ready(){
+	unsigned char status = rf24_status();
+
+	if(status&(1<<RX_DR)){
+		return 1;
+	}
+
+	return !rf24_fifo_empty();
+}
+
+void rf24_get_data(unsigned char* data){
+	rf24_serial_write(R_RX_PAYLOAD);
+	unsigned char i = 0;
+
+	for(i = 0; i < 4; i++){
+		data[3-i] = rf24_serial_write(NOP);
+	}
+
+	rf24_config_register(STATUS, 1<<RX_DR);
+}
+
+unsigned char rf24_status(){
+	return rf24_serial_write(NOP); // returns STATUS register
+}
 
 void rf24_config_register(unsigned char reg, unsigned char value){
 	rf24_serial_write(W_REGISTER|(reg&REG_MASK));
@@ -109,6 +125,24 @@ void rf24_config_register(unsigned char reg, unsigned char value){
 
 unsigned char rf24_read_register(unsigned char reg){
 	return rf24_serial_write(R_REGISTER|(reg&REG_MASK));
+}
+
+void rf24_rx(){
+	digital_write(_ce, HIGH);
+	rf24_config_register(CONFIG, CONFIG_CRC|(1<<PWR_UP)|(1<<PRIM_RX));
+	rf24_config_register(STATUS, (1<<RX_DR)|(1<<TX_DS)|(1<<MAX_RT));
+}
+
+void rf24_tx(){
+	digital_write(_ce, LOW);
+	rf24_config_register(CONFIG, CONFIG_CRC|(1<<PWR_UP)|(0<<PRIM_RX));
+	rf24_config_register(STATUS, (1<<RX_DR)|(1<<TX_DS)|(1<<MAX_RT));
+	rf24_serial_write(FLUSH_TX);
+}
+
+unsigned char rf24_fifo_empty(){
+	unsigned char fifo = rf24_read_register(FIFO_STATUS);
+	return fifo&(1<<RX_EMPTY);
 }
 
 void rf24_serial_transmit(unsigned char* data, unsigned char len){
@@ -125,8 +159,6 @@ unsigned char rf24_serial_write(unsigned char data){
 	unsigned char i = 0, rx = 0;
 
 	for(i = 0; i < 8; i++){
-		_delay_ms(5);
-
 		// write bit
 		if(data&(1<<(7-i))){
 			digital_write(_mo, HIGH);
