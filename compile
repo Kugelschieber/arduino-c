@@ -7,11 +7,7 @@ avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/rf24.o -Wall rf24/rf
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/util.o -Wall ard/util.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/serial.o -Wall ard/serial.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/pins.o -Wall ard/pins.c
-<<<<<<< HEAD
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/rf24.o -Wall rf24/rf24.c
-=======
-
->>>>>>> d37ce320cdf8a301e18381e3496229ff2103e1cb
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o build/main.o -Wall main.c
 
 avr-gcc -mmcu=atmega328p build/*.o -o build/main
