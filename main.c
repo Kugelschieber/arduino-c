@@ -18,7 +18,6 @@ int main(){
 }
 
 void prepare(){
-	// enable global interrupts and serial port
 	pins_init();
 	serial_init(9600);
 
