@@ -33,8 +33,7 @@
 #define ARD             4 // 4 bits
 #define ARC             0 // 4 bits
 
-#define RF_CH_REG       0x05
-#define RF_CH           0 // 7 bits
+#define RF_CH           0x05
 #define RF_CH_MASK      0x7F
 
 #define RF_SETUP        0x06
@@ -67,18 +66,12 @@
 
 #define TX_ADDR         0x10 // 5 bytes
 
-#define RX_PW_P0_REG    0x11
-#define RX_PW_P0        0 // 6 bits
-#define RX_PW_P1_REG    0x12
-#define RX_PW_P1        0 // 6 bits
-#define RX_PW_P2_REG    0x13
-#define RX_PW_P2        0 // 6 bits
-#define RX_PW_P3_REG    0x14
-#define RX_PW_P3        0 // 6 bits
-#define RX_PW_P4_REG    0x15
-#define RX_PW_P4        0 // 6 bits
-#define RX_PW_P5_REG    0x16
-#define RX_PW_P5        0 // 6 bits
+#define RX_PW_P0        0x11 // 6 bits
+#define RX_PW_P1        0x12 // 6 bits
+#define RX_PW_P2        0x13 // 6 bits
+#define RX_PW_P3        0x14 // 6 bits
+#define RX_PW_P4        0x15 // 6 bits
+#define RX_PW_P5        0x16 // 6 bits
 #define RX_PW_MASK      0x3F
 
 #define FIFO_STATUS     0x17
@@ -101,26 +94,24 @@
 #define EN_ACK_PAY      1
 #define EN_DYN_ACK      0
 
-#define R_REGISTER      0x00
-#define W_REGISTER      0x20
-#define REG_MASK        0x1F
-#define R_RX_PAYLOAD    0x61
-#define W_TX_PAYLOAD    0xA0
-#define FLUSH_TX        0xE1
-#define FLUSH_RX        0xE2
-#define REUSE_TX_PL     0xE3
-#define R_RX_PL_WID     0x60
-#define W_ACK_PAYLOAD   0xA8
-#define W_ACK_PAYLOAD_MASK 0x07
-#define PIPE_0          0x00
-#define PIPE_1          0x01
-#define PIPE_2          0x02
-#define PIPE_3          0x03
-#define PIPE_4          0x04
-#define PIPE_5          0x05
-#define W_TX_PAYLOAD_NOACK 0xB0
-#define NOP             0xFF
-
-// TODO
+#define R_REGISTER      	0x00
+#define W_REGISTER      	0x20
+#define REG_MASK        	0x1F
+#define R_RX_PAYLOAD    	0x61
+#define W_TX_PAYLOAD   		0xA0
+#define FLUSH_TX        	0xE1
+#define FLUSH_RX        	0xE2
+#define REUSE_TX_PL     	0xE3
+#define R_RX_PL_WID     	0x60
+#define W_ACK_PAYLOAD   	0xA8
+#define W_ACK_PAYLOAD_MASK  0x07
+#define PIPE_0          	0x00
+#define PIPE_1          	0x01
+#define PIPE_2          	0x02
+#define PIPE_3          	0x03
+#define PIPE_4          	0x04
+#define PIPE_5          	0x05
+#define W_TX_PAYLOAD_NOACK  0xB0
+#define NOP             	0xFF
 
 #endif

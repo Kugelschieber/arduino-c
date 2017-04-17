@@ -68,29 +68,36 @@ void rf24_config(unsigned char channel, unsigned char payload_len){
 }
 
 void rf24_rx_addr(unsigned char* addr){
+	digital_write(_csn, LOW);
 	rf24_serial_write(W_REGISTER|RX_ADDR_P1); // data pipe
 	rf24_serial_transmit(addr, 5);
+	digital_write(_csn, HIGH);
 }
 
 void rf24_tx_addr(unsigned char* addr){
+	digital_write(_csn, LOW);
 	rf24_serial_write(W_REGISTER|RX_ADDR_P0); // auto ACK pipe address must match...
 	rf24_serial_transmit(addr, 5);
 	rf24_serial_write(W_REGISTER|TX_ADDR); // tx address
 	rf24_serial_transmit(addr, 5);
+	digital_write(_csn, HIGH);
 }
 
 void rf24_rx(){
+	digital_write(_csn, LOW);
 	rf24_serial_write(FLUSH_RX);
+	digital_write(_csn, HIGH);
+
+	digital_write(_ce, LOW);
 	rf24_config_register(STATUS, (1<<RX_DR)|(1<<TX_DS)|(1<<MAX_RT));
 	rf24_config_register(CONFIG, CONFIG_CRC|(1<<PWR_UP)|(1<<PRIM_RX));
 	digital_write(_ce, HIGH);
 }
 
 void rf24_tx(){
-	rf24_serial_write(FLUSH_TX);
+	digital_write(_ce, LOW);
 	rf24_config_register(STATUS, (1<<RX_DR)|(1<<TX_DS)|(1<<MAX_RT));
 	rf24_config_register(CONFIG, CONFIG_CRC|(1<<PWR_UP)|(0<<PRIM_RX));
-	digital_write(_ce, LOW);
 }
 
 void rf24_power_down(){
@@ -100,8 +107,11 @@ void rf24_power_down(){
 
 void rf24_send(unsigned char* data){
 	rf24_tx();
+	digital_write(_csn, LOW);
+	rf24_serial_write(FLUSH_TX);
 	rf24_serial_write(W_TX_PAYLOAD);
 	rf24_serial_transmit(data, _payload_len);
+	digital_write(_csn, HIGH);
 	digital_write(_ce, HIGH);
 }
 
@@ -121,6 +131,7 @@ unsigned char rf24_data_ready(){
 }
 
 void rf24_get_data(unsigned char* data){
+	digital_write(_csn, LOW);
 	rf24_serial_write(R_RX_PAYLOAD);
 	unsigned char i = 0;
 
@@ -128,22 +139,31 @@ void rf24_get_data(unsigned char* data){
 		data[i] = rf24_serial_write(NOP);
 	}
 
-	rf24_config_register(STATUS, 1<<RX_DR);
 	rf24_serial_write(FLUSH_RX);
+	digital_write(_csn, HIGH);
+	rf24_config_register(STATUS, 1<<RX_DR);
 }
 
 unsigned char rf24_status(){
-	return rf24_serial_write(NOP); // returns STATUS register
+	digital_write(_csn, LOW);
+	unsigned char status = rf24_serial_write(NOP); // returns STATUS register
+	digital_write(_csn, HIGH);
+	return status;
 }
 
 void rf24_config_register(unsigned char reg, unsigned char value){
+	digital_write(_csn, LOW);
 	rf24_serial_write(W_REGISTER|(reg&REG_MASK));
 	rf24_serial_write(value);
+	digital_write(_csn, HIGH);
 }
 
 unsigned char rf24_read_register(unsigned char reg){
+	digital_write(_csn, LOW);
 	rf24_serial_write(R_REGISTER|(reg&REG_MASK));
-	return rf24_serial_write(NOP);
+	unsigned char data = rf24_serial_write(NOP);
+	digital_write(_csn, HIGH);
+	return data;
 }
 
 unsigned char rf24_fifo_empty(){
@@ -160,11 +180,13 @@ void rf24_serial_transmit(unsigned char* data, unsigned char len){
 }
 
 unsigned char rf24_serial_write(unsigned char data){
-	digital_write(_csn, LOW); // chip enable
+	digital_write(_sck, LOW); // clock
 	unsigned char i = 0, rx = 0;
 
+	_delay_ms(40); // FIXME remove
+
 	for(i = 0; i < 8; i++){
-		digital_write(_sck, LOW); // clock
+		_delay_ms(5); // FIXME remove
 
 		// write bit
 		if(data&(1<<(7-i))){
@@ -175,16 +197,17 @@ unsigned char rf24_serial_write(unsigned char data){
 		}
 
 		// read bit
-		digital_write(_sck, HIGH); // clock
-		rx <<= 1;
+		digital_write(_sck, HIGH);
+		rx = rx<<1;
 
 		if(digital_read(_mi)){
 			rx |= 0x01;
 		}
+
+		digital_write(_sck, LOW);
 	}
 
-	digital_write(_sck, LOW);
-	digital_write(_csn, HIGH); // chip disable
+	_delay_ms(5); // FIXME remove
 	digital_write(_mo, LOW);
 
 	return rx;
