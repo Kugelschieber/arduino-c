@@ -5,7 +5,7 @@
 // FIXME for testing, remove later
 #include <util/delay.h>
 
-#define CONFIG_CRC (1<<EN_CRC)|(1<<CRCO)
+#define CONFIG_CRC (1<<EN_CRC)|(0<<CRCO)
 
 unsigned char _ce, _csn, _sck, _mo, _mi, _irq, _payload_len;
 
@@ -47,7 +47,7 @@ void rf24_config(unsigned char channel, unsigned char payload_len){
 	rf24_config_register(RX_PW_P5, 0x00);
 
 	// low transmission rate, 0dBm
-	rf24_config_register(RF_SETUP, (0<<RF_DR_LOW)|(0x03<<RF_PWR));
+	rf24_config_register(RF_SETUP, (0<<RF_DR_HIGH)|(0x03<<RF_PWR));
 
 	// CRC
 	rf24_config_register(CONFIG, CONFIG_CRC);
@@ -78,6 +78,8 @@ void rf24_tx_addr(unsigned char* addr){
 	digital_write(_csn, LOW);
 	rf24_serial_write(W_REGISTER|RX_ADDR_P0); // auto ACK pipe address must match...
 	rf24_serial_transmit(addr, 5);
+	digital_write(_csn, HIGH);
+	digital_write(_csn, LOW);
 	rf24_serial_write(W_REGISTER|TX_ADDR); // tx address
 	rf24_serial_transmit(addr, 5);
 	digital_write(_csn, HIGH);
@@ -88,14 +90,14 @@ void rf24_rx(){
 	rf24_serial_write(FLUSH_RX);
 	digital_write(_csn, HIGH);
 
-	digital_write(_ce, LOW);
 	rf24_config_register(STATUS, (1<<RX_DR)|(1<<TX_DS)|(1<<MAX_RT));
+
+	digital_write(_ce, LOW);
 	rf24_config_register(CONFIG, CONFIG_CRC|(1<<PWR_UP)|(1<<PRIM_RX));
 	digital_write(_ce, HIGH);
 }
 
 void rf24_tx(){
-	digital_write(_ce, LOW);
 	rf24_config_register(STATUS, (1<<RX_DR)|(1<<TX_DS)|(1<<MAX_RT));
 	rf24_config_register(CONFIG, CONFIG_CRC|(1<<PWR_UP)|(0<<PRIM_RX));
 }
@@ -106,9 +108,12 @@ void rf24_power_down(){
 }
 
 void rf24_send(unsigned char* data){
+	digital_write(_ce, LOW);
 	rf24_tx();
 	digital_write(_csn, LOW);
 	rf24_serial_write(FLUSH_TX);
+	digital_write(_csn, HIGH);
+	digital_write(_csn, LOW);
 	rf24_serial_write(W_TX_PAYLOAD);
 	rf24_serial_transmit(data, _payload_len);
 	digital_write(_csn, HIGH);
@@ -139,7 +144,6 @@ void rf24_get_data(unsigned char* data){
 		data[i] = rf24_serial_write(NOP);
 	}
 
-	rf24_serial_write(FLUSH_RX);
 	digital_write(_csn, HIGH);
 	rf24_config_register(STATUS, 1<<RX_DR);
 }
