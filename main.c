@@ -7,6 +7,7 @@
 #include "rf24/nRF24L01.h"
 
 //#define TX
+#define PAYLOAD 32 // byte
 
 unsigned char rx_addr[5] = {0xE7, 0xE7, 0xE7, 0xE7, 0xE7};
 unsigned char tx_addr[5] = {0xD7, 0xD7, 0xD7, 0xD7, 0xD7};
@@ -32,7 +33,7 @@ void prepare(){
 	pin_mode(A2, OUTPUT); // red
 
 	rf24_init(7, 6, 5, 4, 3, 2);
-	rf24_config(2, 13);
+	rf24_config(2, PAYLOAD);
 
 #ifdef TX
 	rf24_rx_addr(rx_addr);
@@ -59,7 +60,7 @@ void tx(){
 	_delay_ms(10);
 	digital_write(A1, LOW);
 	digital_write(A2, LOW);
-	unsigned char data[13] = "World!";
+	unsigned char data[PAYLOAD] = "Hello, World! What's going on?";
 
 	rf24_send(data);
 	while(rf24_is_sending());
@@ -78,12 +79,12 @@ void rx(){
 	digital_write(A2, LOW);
 
 	if(rf24_data_ready()){
-		unsigned char data[13];
+		unsigned char data[PAYLOAD];
 
 		rf24_get_data(data);
 		digital_write(A1, HIGH);
-		serial_write((char*)data, 13);
+		serial_write((char*)data, PAYLOAD);
 
-		_delay_ms(1000);
+		_delay_ms(100);
 	}
 }

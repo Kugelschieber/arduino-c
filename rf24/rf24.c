@@ -38,13 +38,7 @@ void rf24_config(unsigned char channel, unsigned char payload_len){
 	_payload_len = payload_len;
 
 	rf24_config_register(RF_CH, channel&RF_CH_MASK); // 2.4Ghz + channel*1Mhz
-
-	rf24_config_register(RX_PW_P0, 0x00); // auto ACK
-	rf24_config_register(RX_PW_P1, payload_len&RX_PW_MASK); // data
-	rf24_config_register(RX_PW_P2, 0x00); // unused...
-	rf24_config_register(RX_PW_P3, 0x00);
-	rf24_config_register(RX_PW_P4, 0x00);
-	rf24_config_register(RX_PW_P5, 0x00);
+	rf24_config_register(RX_PW_P1, payload_len&RX_PW_MASK); // data, pipe 0 for ACK
 
 	// low transmission rate, 0dBm
 	rf24_config_register(RF_SETUP, (0<<RF_DR_HIGH)|(0x03<<RF_PWR));
@@ -53,16 +47,13 @@ void rf24_config(unsigned char channel, unsigned char payload_len){
 	rf24_config_register(CONFIG, CONFIG_CRC);
 
 	// auto ACK for pipe 0 and 1 (disable the rest of them)
-	rf24_config_register(EN_AA, (1<<ENAA_P0)|(1<<ENAA_P1)|(0<<ENAA_P2)|(0<<ENAA_P3)|(0<<ENAA_P4)|(0<<ENAA_P5));
+	rf24_config_register(EN_AA, (1<<ENAA_P0)|(1<<ENAA_P1));
 
 	// rx address
-	rf24_config_register(EN_RXADDR, (1<<ERX_P0)|(1<<ERX_P1)|(0<<ERX_P2)|(0<<ERX_P3)|(0<<ERX_P4)|(0<<ERX_P5));
+	rf24_config_register(EN_RXADDR, (1<<ERX_P0)|(1<<ERX_P1));
 
 	// auto retransmit, 1000us, 15 retransmits
 	rf24_config_register(SETUP_RETR, (0x04<<ARD)|(0x0F<<ARC));
-
-	// fixed package length
-	rf24_config_register(DYNPD, 0x00);
 
 	rf24_rx();
 }
@@ -140,7 +131,7 @@ void rf24_get_data(unsigned char* data){
 	rf24_serial_write(R_RX_PAYLOAD);
 	unsigned char i = 0;
 
-	for(i = 0; i < 4; i++){
+	for(i = 0; i < _payload_len; i++){
 		data[i] = rf24_serial_write(NOP);
 	}
 
@@ -187,10 +178,14 @@ unsigned char rf24_serial_write(unsigned char data){
 	digital_write(_sck, LOW); // clock
 	unsigned char i = 0, rx = 0;
 
-	_delay_ms(40); // FIXME remove
+#ifdef DEBUG
+	_delay_ms(40);
+#endif
 
 	for(i = 0; i < 8; i++){
-		_delay_ms(5); // FIXME remove
+#ifdef DEBUG
+		_delay_ms(5);
+#endif
 
 		// write bit
 		if(data&(1<<(7-i))){
@@ -211,7 +206,9 @@ unsigned char rf24_serial_write(unsigned char data){
 		digital_write(_sck, LOW);
 	}
 
-	_delay_ms(5); // FIXME remove
+#ifdef DEBUG
+	_delay_ms(5);
+#endif
 	digital_write(_mo, LOW);
 
 	return rx;
