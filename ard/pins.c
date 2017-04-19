@@ -28,11 +28,13 @@ void pins_init(){
 
 	// clear timer to compare match for PWM output
 	TCCR0A |= _BV(WGM01)|_BV(WGM00);
-	TCCR1A |= _BV(WGM01)|_BV(WGM00);
+	TCCR1A |= _BV(WGM11)|_BV(WGM10);
 	TCCR2A |= _BV(WGM21)|_BV(WGM20);
 
 	// enable interrupt on timer overflow for PWM output
 	TIMSK0 |= _BV(TOIE0);
+	TIMSK1 |= _BV(TOIE1);
+	TIMSK2 |= _BV(TOIE2);
 }
 
 void pin_mode(unsigned char pin, unsigned char mode){
@@ -167,21 +169,19 @@ void analog_write(unsigned char pin, unsigned char value){
 	// 1. clear timer on compare match (pins_init)
 	// 2. set interrupt on overflow (pins_init) and value to compare to
 	// 3. set timer scaling to 1, which starts the timer
-	if(pin == 3){
-		TCCR2A |= _BV(COM2B1);
-		OCR2B = value;
-		TCCR2B |= _BV(CS20)|_BV(CS21);
+
+	// timer 0
+	if(pin == 6){
+		TCCR0A |= _BV(COM0A1);
+		OCR0A = value;
+		TCCR0B |= _BV(CS00)|_BV(CS01);
 	}
 	else if(pin == 5){
 		TCCR0A |= _BV(COM0B1);
 		OCR0B = value;
-		TCCR0B |= _BV(CS00)|_BV(CS02);
+		TCCR0B |= _BV(CS00)|_BV(CS01);
 	}
-	else if(pin == 6){
-		TCCR0A |= _BV(COM0A1);
-		OCR0A = value;
-		TCCR0B |= _BV(CS00)|_BV(CS02);
-	}
+	// timer 1
 	else if(pin == 9){
 		TCCR1A |= _BV(COM1A1);
 		OCR1A = value;
@@ -192,9 +192,15 @@ void analog_write(unsigned char pin, unsigned char value){
 		OCR1B = value;
 		TCCR1B |= _BV(CS10)|_BV(CS11);
 	}
+	// timer 2
 	else if(pin == 11){
 		TCCR2A |= _BV(COM2A1);
 		OCR2A = value;
+		TCCR2B |= _BV(CS20)|_BV(CS21);
+	}
+	else if(pin == 3){
+		TCCR2A |= _BV(COM2B1);
+		OCR2B = value;
 		TCCR2B |= _BV(CS20)|_BV(CS21);
 	}
 }
