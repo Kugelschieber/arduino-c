@@ -24,8 +24,6 @@ void prepare(){
 	pin_mode(A2, INPUT);
 }
 
-unsigned char pwm = 0;
-
 void loop(){
 	int analog1 = analog_read(A1);
 	int analog2 = analog_read(A2);

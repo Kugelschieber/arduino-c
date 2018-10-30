@@ -25,8 +25,6 @@ void prepare(){
 	pin_mode(8, INPUT);
 }
 
-unsigned char pwm = 0;
-
 void loop(){
 	if(digital_read(10) && digital_read(8)){
 		digital_write(11, HIGH);
