@@ -1,8 +1,8 @@
 #include <util/delay.h>
 #include <stdio.h>
-#include "ard/serial.h"
-#include "ard/pins.h"
-#include "ard/util.h"
+#include "../ard/serial.h"
+#include "../ard/pins.h"
+#include "../ard/util.h"
 
 void prepare();
 void loop();
