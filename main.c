@@ -7,7 +7,7 @@
 void prepare();
 void loop();
 
-int main(){
+int main() {
 	prepare();
 
 	while(1){
@@ -15,15 +15,16 @@ int main(){
 	}
 }
 
-void prepare(){
+void prepare() {
 	pins_init();
 	serial_init(9600);
-	at28c256_init(2, 13);
+	at28c256_init(2, 13, 4, 3, 5, 6, 7, 8, 9, 10, 11, 12);
+
+	at28c256_write(0x0000, 0x7B); // 123
+	at28c256_write(0x0001, 0x2A); // 42
 }
 
-void loop(){
-	at28c256_write(0x0001, 0);
-	_delay_ms(1000);
-	at28c256_write(0x8000, 0);
+void loop() {
+	serial_write("Test\n\r", 6);
 	_delay_ms(1000);
 }
