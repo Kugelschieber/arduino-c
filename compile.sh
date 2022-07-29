@@ -14,17 +14,19 @@ echo "BAUD set to $BAUD"
 rm -rf build || true
 mkdir build
 
+# compile files
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/servo.o -Wall servo/servo.c
-
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/rf24.o -Wall rf24/rf24.c
-
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/util.o -Wall ard/util.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/serial.o -Wall ard/serial.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/pins.o -Wall ard/pins.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/main.o -Wall main.c
 
+# compile binary
 avr-gcc -mmcu=$MMCU build/*.o -o build/main
-avr-objcopy -O ihex -R .eeprom build/main build/main.hex
-avrdude -F -V -c arduino -p $AVR_TYPE -P $1 -b $BAUD -U flash:w:build/main.hex
 
-rm -r build
+# create file to upload to arduino
+avr-objcopy -O ihex -R .eeprom build/main build/main.hex
+
+# upload to arduino
+avrdude -F -V -c arduino -p $AVR_TYPE -P $1 -b $BAUD -U flash:w:build/main.hex
