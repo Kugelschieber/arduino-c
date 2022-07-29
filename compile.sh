@@ -15,6 +15,7 @@ rm -rf build || true
 mkdir build
 
 # compile files
+avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/at28c256.o -Wall at28c256/at28c256.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/servo.o -Wall servo/servo.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/rf24.o -Wall rf24/rf24.c
 avr-gcc -Os -DF_CPU=16000000UL -mmcu=$MMCU -c -o build/util.o -Wall ard/util.c

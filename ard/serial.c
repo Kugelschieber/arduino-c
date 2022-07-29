@@ -1,7 +1,7 @@
 #include "serial.h"
 #include <avr/io.h>
 
-void serial_init(unsigned int baud){
+void serial_init(unsigned int baud) {
 	unsigned long baud_prescale = ((16000000UL/(baud*16UL)))-1;
 
 	// enable transmitter and receiver
@@ -15,7 +15,7 @@ void serial_init(unsigned int baud){
 	UBRR0L  = baud_prescale;
 }
 
-void serial_write(char* data, unsigned int n){
+void serial_write(char* data, unsigned int n) {
 	unsigned int i;
 
 	for(i = 0; i < n; i++){
@@ -27,7 +27,7 @@ void serial_write(char* data, unsigned int n){
 	}
 }
 
-void serial_read(char* data, unsigned int n){
+void serial_read(char* data, unsigned int n) {
 	unsigned int i;
 
 	for(i = 0; i < n; i++){

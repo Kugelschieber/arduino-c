@@ -20,7 +20,7 @@ const unsigned char A7 = 0x15;
 void analog_read_duty_cycle();
 unsigned char map_analog_pin(unsigned char);
 
-void pins_init(){
+void pins_init() {
 	sei();
 
 	// enable ADC (128 bit ADPS scaling factor 0x07) to read analog values
@@ -37,7 +37,7 @@ void pins_init(){
 	TIMSK2 |= _BV(TOIE2);
 }
 
-void pin_mode(unsigned char pin, unsigned char mode){
+void pin_mode(unsigned char pin, unsigned char mode) {
 	if(pin > A7){
 		return;
 	}
@@ -75,7 +75,7 @@ void pin_mode(unsigned char pin, unsigned char mode){
 	}
 }
 
-int digital_read(unsigned char pin){
+int digital_read(unsigned char pin) {
 	if(pin > A7){
 		return 0;
 	}
@@ -94,7 +94,7 @@ int digital_read(unsigned char pin){
 	return analog_read(pin) > 512 ? 1 : 0;
 }
 
-void digital_write(unsigned char pin, unsigned char value){
+void digital_write(unsigned char pin, unsigned char value) {
 	if(pin > A7){
 		return;
 	}
@@ -132,7 +132,7 @@ void digital_write(unsigned char pin, unsigned char value){
 	}
 }
 
-unsigned int analog_read(unsigned char pin){
+unsigned int analog_read(unsigned char pin) {
 	pin = map_analog_pin(pin);
 
 	if(pin > 7){
@@ -151,7 +151,7 @@ unsigned int analog_read(unsigned char pin){
 	return ADC;
 }
 
-void analog_write(unsigned char pin, unsigned char value){
+void analog_write(unsigned char pin, unsigned char value) {
 	// write digital if possible
 	if(value == 0){
 		digital_write(pin, LOW);
@@ -206,7 +206,7 @@ void analog_write(unsigned char pin, unsigned char value){
 }
 
 // maps A0-A7 to 0-7
-unsigned char map_analog_pin(unsigned char pin){
+unsigned char map_analog_pin(unsigned char pin) {
 	if(pin > 7){
 		return pin-A0;
 	}
